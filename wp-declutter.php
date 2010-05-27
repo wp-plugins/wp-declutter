@@ -106,7 +106,7 @@ class wp_declutter {
 		
 		$wp_headers = array(
 			'X-Pingback' => array('X-Pingback header: a link to the Wordpress pingback handler. If you do not accept pingbacks on your site, you can remove this header.', 'X-Pingback: http://example.com/xmlrpc.php'),
-			'ETag' => array('Etag: an entity tag header used to check whether a feed has changed since it was last accessed. Wordpress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.', 'Etag: "2eb8cfdbbd6e8ed5d0e959e001d55b3a"')
+			'ETag' => array('Etag: an entity tag header used to check whether a feed has changed since it was last accessed. Wordpress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.', '')
 		);
 		
 		$wp_head_actions = array(
@@ -143,7 +143,7 @@ class wp_declutter {
 		$comment_classes = array(
 			'type' => array('<code>type</code>: the type of the comment (e.g., comment, trackback)', ''),
 			'byuser' => array('byuser: applied to comments from registered users.', ''),
-			'comment-author' => array('comment-author-<code>name</code>: applied to comments from registered users, with their name appended.', '<li class="byuser comment-author-frodo-baggins ...'),
+			'comment-author' => array('comment-author-<code>name</code>: applied to comments from registered users, with their name appended.', '<li class="byuser comment-author-gandalf ...'),
 			'bypostauthor' => array('bypostauthor: applied to comments by the post author.', ''),
 			'odd' => array('odd: applied to every other (odd) comment.', ''),
 			'alt' => array('alt: alias of "odd".', ''),
