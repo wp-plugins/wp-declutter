@@ -98,7 +98,7 @@ class wp_declutter {
 	}
 	
 	function settings_menu() {
-		add_submenu_page('plugins.php', 'Declutter Wordpress', 'Declutter Wordpress', 'manage_options', 'wp_declutter_settings', array(&$this, 'settings_page') );
+		add_submenu_page('options-general.php', 'Declutter Wordpress', 'Declutter Wordpress', 'manage_options', 'wp_declutter_settings', array(&$this, 'settings_page') );
 	}
 	
 	function settings_page() {
@@ -112,7 +112,7 @@ class wp_declutter {
 		$wp_head_actions = array(
 			'feed_links' => array('Links to the blog and comments feeds.', '<link rel="alternate" type="application/rss+xml" title="Blog Feed" href="http://example.com/feed/" />'),
 			'feed_links_extra' => array('Links to additional feeds (such as comments, category, tag, author and search feeds).', '<link rel="alternate" type="application/rss+xml" title="Uncategorized Category Feed" href="http://example.com/tag/foo/feed/" />'), 
-			'rsd_link' => array('Link to the Really Simple Discovery service endpoint. This is an old publishin convention used to allow blogs to share information with other services, and is largely superceded by other methods now.', '<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://example.com/xmlrpc.php?rsd" />'),
+			'rsd_link' => array('Link to the Really Simple Discovery service endpoint. This is an old publishing convention used to allow blogs to share information with other services, and is largely superceded by other methods now.', '<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://example.com/xmlrpc.php?rsd" />'),
 			'wlwmanifest_link' => array('Link to the Windows Live Writer manifest file. If you have never heard of Windows Live Writer, you definitely don\'t need this.', '<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://example.com/wp-includes/wlwmanifest.xml" />'),
 			'index_rel_link' => array('Link to the front page of your site.', '<link rel="index" title="Blog" href="http://example.com" />'),
 			'parent_post_rel_link' => array('Link to the parent of the current page, if it exists.', '<link rel="up" title="Parent post title" href="http://example.com/parent-post/" />'),

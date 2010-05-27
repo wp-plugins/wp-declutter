@@ -42,5 +42,5 @@ No. Please use it only with PHP 5.0 and above. Please don't email me about PHP e
 == Installation ==
 
 1. Upload the wp-declutter folder to the `/wp-content/plugins/` directory (or use the Wordpress auto-install feature)
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. The settings for the plugin can be accessed from the Plugins administration menu.
+2. Activate the plugin through the 'Plugins' page in WordPress
+3. The settings for the plugin can be accessed from the Settings administration menu, under "Declutter Wordpress".
