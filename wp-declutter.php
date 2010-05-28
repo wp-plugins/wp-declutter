@@ -104,7 +104,6 @@ class wp_declutter {
 	<div class="wrap">
 	<h2>Declutter Wordpress</h2>
 	<p>Wordpress comes with a bunch of default settings that insert various pieces of code into your site's pages. Some of these are optional (some might say unnecessary), and you can remove them if you wish.</p>
-	<p><small>Some items are marked [<strong>advanced</strong>], and it is suggested that you leave these checked if you do not understand what they are referring to.</small></p>
 	
 	<form action="" method="post" id="wp-declutter-settings">
 	<p id="declutter_select" style="display:none">Select a section to configure: <br />[<a id="show_wp_head" href="#">The HTML &lt;head&gt; section</a>] [<a id="show_feeds" href="#">Feeds</a>] [<a id="show_http" href="#">HTTP Headers</a>] [<a id="show_body" href="#">HTML &lt;body&gt;</a>] [<a id="show_posts" href="#">Posts</a>] [<a id="show_comments" href="#">Comments</a>] [<a id="show_all" href="#"><strong>Show All</strong></a>]</p>

@@ -11,8 +11,8 @@ If $regex is supplied, $example MUST be supplied, even if empty
 $wp_headers = array(
 	'X-Pingback' => array('X-Pingback header: a link to the Wordpress pingback handler. If you do not accept pingbacks on your site, you can remove this header.', 'X-Pingback: http://example.com/xmlrpc.php'),
 	'ETag' => array('Etag: an entity tag header used to check whether a feed has changed since it was last accessed. Wordpress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.', ''),
-	'Pragma' => array('[<strong>advanced</strong>] Pragma: a HTTP/1.0 header used for cache control, sent by Wordpress when caching is disallowed. It is superceded by the HTTP/1.1 Cache-Control directive, but some clients may still use it.', ''),
-	'Expires' => array('[<strong>advanced</strong>] Expires: a header used for cache control, sent by Wordpress when caching is disallowed. It is superfluous when the HTTP/1.1 Cache-Control directive is used, but some clients may still use it.', '')
+	'Pragma' => array('Pragma: a HTTP/1.0 header used for cache control, sent by Wordpress when caching is disallowed. It is superceded by the HTTP/1.1 Cache-Control directive, but some clients may still use it.', ''),
+	'Expires' => array('Expires: a header used for cache control, sent by Wordpress when caching is disallowed. It is superfluous when the HTTP/1.1 Cache-Control directive is used, but some clients may still use it.', '')
 );
 
 $wp_head_actions = array(
