@@ -157,13 +157,15 @@ class wp_declutter {
 	private function list_items($group) {
 		if(empty($this->option_groups[$group])) 
 			echo '<li>Your version of Wordpress does not have any entries in this section.</li>';
-		else 
+		else {
+			ksort($this->option_groups[$group]);	// sort by key for more sensible viewing
 			foreach($this->option_groups[$group] as $key => $item) {
 				$desc = $item[0];
 				$example = isset($item[1]) && $item[1] ? '<p class="example"><code>'.htmlspecialchars($item[1]).'</code></p>' : '';
 				$checked = array_key_exists($key, $this->options[$group]) ? '' : "checked='checked'";
 				echo "<li><input type='checkbox' name='{$group}__{$key}' $checked /> $desc $example</li>";
 			}
+		}
 	}
 	
 	private function update() {
