@@ -39,29 +39,23 @@ class wp_declutter {
 	}
 	
 	function pre_template_filter() {
-		add_action('template_redirect', array(&$this, 'template_filter') );	// stuff to do after template redirect	
 		$this->options = get_option('wp_declutter_options');
+		add_action('template_redirect', array(&$this, 'template_filter') );	// stuff to do after template redirect	
 		
 		// headers
-		$unsets = '';
-		foreach( array_keys($this->options['wp_headers']) as $h ) $unsets .= 'unset($headers["'.$h.'"]); ';		
-		if($unsets) add_filter('wp_headers', create_function('$headers', $unsets.' return $headers;'));
-				
+		if($this->options['wp_headers']) add_filter('wp_headers', array(&$this, 'filter_wp_headers') );
 		// shortlink
-		$priorities = array('wp_shortlink_header' => 11);
-		foreach( array_keys($this->options['template_redirect']) as $func ) {
-			$priority = isset($priorities[$func]) ? $priorities[$func] : 10;
-			remove_action('template_redirect', $func, $priority);
-		}
+		$this->remove_actions('template_redirect', 'template_redirect', array('wp_shortlink_header' => 11) );
 	}
 	
-	function template_filter() {		
+	function filter_wp_headers($headers) {
+		// returns only those keys which aren't in the options array
+		return array_diff_key($headers, $this->options['wp_headers']);
+	}
+	
+	function template_filter() {
 		// wp_head
-		$priorities = array('feed_links' => 2, 'feed_links_extra' => 3);
-		foreach( $this->options['wp_head'] as $key => $dummy) {
-			$priority = isset($priorities[$key]) ? $priorities[$key] : 10;
-			remove_action('wp_head', $key, $priority);
-		}
+		$this->remove_actions('wp_head', 'wp_head', array('feed_links' => 2, 'feed_links_extra' => 3) );
 		
 		// feed
 		if( array_key_exists('the_generator', $this->options['feed']) ) {
@@ -78,11 +72,23 @@ class wp_declutter {
 	function filter_post_classes($classes){return $this->filter_classes($classes, 'post_classes'); }
 	function filter_comment_classes($classes){return $this->filter_classes($classes, 'comment_classes'); }
 	
+	private function remove_actions($hook, $group, $priorities = '') {
+		// remove all the actions given by the keys of an option group, for the hook specified
+		if(!$priorities) $priorities = array();
+		foreach( array_keys($this->options[$group]) as $act ) {
+			$priority = isset($priorities[$act]) ? $priorities[$act] : 10;
+			remove_action($hook, $act, $priority);
+		}
+	}
+	
 	private function filter_classes($classes, $group){
 		foreach( $classes as $index => $class )
 			foreach( $this->options[$group] as $key => $maybe_regex ) {
 				$regex = empty($maybe_regex) ? "/^$key$/" : $maybe_regex;	// simple match for key if no regex supplied
-				if( preg_match($regex, $class) ) unset($classes[$index]);	
+				if( preg_match($regex, $class) ) {
+					unset($classes[$index]);
+					break;
+				}
 			}
 		return $classes;
 	}
@@ -127,27 +133,34 @@ class wp_declutter {
 	</div>
 	
 	<div class="declutter_group" id="s_posts">
-	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>div</code>s based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling. Those which can be removed are listed blow. You can uncheck any you do not use.</p>
-	<ul><?php $this->list_items('post_classes'); ?></ul>
+	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>div</code>s based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling. Those which can be removed are listed blow. You can uncheck any you do not use.</p><ul><?php $this->list_items('post_classes'); ?></ul>
 	</div>
 	
 	<div class="declutter_group" id="s_comments">
 	<h3>Comments</h3><p>Wordpress also inserts various class names into comments. You can uncheck any you do not want.</p><ul><?php $this->list_items('comment_classes'); ?></ul>
 	</div>
 	
+	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
 	<p class="submit"><input class="button-primary" type="submit" name="submit" value="Update settings" /></p>
 	</form>
 	</div>
 	<script>
 	jQuery(document).ready(function(){
-		jQuery('#declutter_select').show(); jQuery('.declutter_group').hide();
+		jQuery('#declutter_select').show(); 
 		jQuery('#declutter_select > a').click(function(){
-			var toshow = jQuery(this).attr('id').replace('show_','s_');
-			if(toshow == 's_all') jQuery('.declutter_group').fadeIn('slow');
+			var aid = jQuery(this).attr('id');
+			jQuery('#declutter_current_view').val(aid);
+			if(aid == 'show_all') jQuery('.declutter_group').fadeIn('slow');
 			else {
-				jQuery('.declutter_group').hide(); jQuery('#' + toshow).fadeIn('slow');
+				jQuery('.declutter_group').hide(); 
+				jQuery('#' + aid.replace('show_','s_') ).fadeIn('slow');
 			}
 		});
+		<?php 
+			$current = isset($_POST['declutter_current_view']) ? $_POST['declutter_current_view'] : false;
+			if($current) echo "jQuery('#$current').click();";
+			else echo "jQuery('.declutter_group').hide();";
+		?>
 	});
 	</script>
 <?php
