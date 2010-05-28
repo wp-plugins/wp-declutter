@@ -3,7 +3,7 @@
 Plugin Name: Declutter Wordpress
 Plugin URI: http://rayofsolaris.net/blog/plugins/declutter-wordpress/
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.0
+Version: 1.1
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 */
@@ -33,7 +33,7 @@ class wp_declutter {
 	
 	function activate() {
 		$options = get_option('wp_declutter_options', array() );
-		$defaults = array('wp_head', 'template_redirect', 'wp_headers', 'feed', 'post_classes', 'comment_classes');
+		$defaults = array('wp_head', 'template_redirect', 'wp_headers', 'feed', 'body_classes', 'post_classes', 'comment_classes');
 		foreach($defaults as $d) if( !isset($options[$d]) ) $options[$d] = array();	// empty array
 		update_option('wp_declutter_options', $options);
 	}
@@ -42,13 +42,14 @@ class wp_declutter {
 		add_action('template_redirect', array(&$this, 'template_filter') );	// stuff to do after template redirect	
 		$this->options = get_option('wp_declutter_options');
 		
+		// headers
 		$unsets = '';
-		foreach( $this->options['wp_headers'] as $h ) $unsets .= 'unset($headers["'.$h.'"]); ';
-		
+		foreach( array_keys($this->options['wp_headers']) as $h ) $unsets .= 'unset($headers["'.$h.'"]); ';		
 		if($unsets) add_filter('wp_headers', create_function('$headers', $unsets.' return $headers;'));
 				
+		// shortlink
 		$priorities = array('wp_shortlink_header' => 11);
-		foreach( $this->options['template_redirect'] as $func ) {
+		foreach( array_keys($this->options['template_redirect']) as $func ) {
 			$priority = isset($priorities[$func]) ? $priorities[$func] : 10;
 			remove_action('template_redirect', $func, $priority);
 		}
@@ -57,43 +58,32 @@ class wp_declutter {
 	function template_filter() {		
 		// wp_head
 		$priorities = array('feed_links' => 2, 'feed_links_extra' => 3);
-		foreach( $this->options['wp_head'] as $func) {
-			$priority = isset($priorities[$func]) ? $priorities[$func] : 10;
-			remove_action('wp_head', $func, $priority);
+		foreach( $this->options['wp_head'] as $key => $dummy) {
+			$priority = isset($priorities[$key]) ? $priorities[$key] : 10;
+			remove_action('wp_head', $key, $priority);
 		}
 		
 		// feed
-		if( in_array('the_generator', $this->options['feed']) ) {
+		if( array_key_exists('the_generator', $this->options['feed']) ) {
 			foreach( array('rss2_head', 'commentsrss2_head', 'rss_head', 'rdf_header', 'atom_head', 'comments_atom_head', 'opml_head', 'app_head') as $hook ) remove_action($hook, 'the_generator');
 		}
 		
-		// post classes
+		// body, post, comment classes
+		if($this->options['body_classes']) add_filter('body_class', array(&$this, 'filter_body_classes'));
 		if($this->options['post_classes']) add_filter('post_class', array(&$this, 'filter_post_classes'));
-		
-		// post classes
 		if($this->options['comment_classes']) add_filter('comment_class', array(&$this, 'filter_comment_classes'));
 	}
 	
-	function filter_post_classes($classes){
-		$filters = array();
-		foreach( $this->options['post_classes'] as $item ) {
-			if( in_array($item, array('post', 'type', 'category', 'tag') ) ) $filters[] = "/^$item-/";
-			if( in_array($item, array('sticky', 'hentry') ) ) $filters[] = "/^$item$/";
-		}
-		foreach($classes as $key => $class) 
-			foreach($filters as $filter) if( preg_match($filter, $class) ) unset($classes[$key]);
-		return $classes;
-	}
+	function filter_body_classes($classes){return $this->filter_classes($classes, 'body_classes'); }
+	function filter_post_classes($classes){return $this->filter_classes($classes, 'post_classes'); }
+	function filter_comment_classes($classes){return $this->filter_classes($classes, 'comment_classes'); }
 	
-	function filter_comment_classes($classes){
-		$filters = array();
-		foreach( $this->options['comment_classes'] as $item ) {
-			if('type' == $item) $filters[] = "/^(comment|trackback)$/";
-			if( in_array($item, array('comment-author', 'depth') ) ) $filters[] = "/^$item-/"; 
-			if( in_array($item, array('byuser', 'bypostauthor', 'odd', 'alt', 'even', 'thread-odd', 'thread-alt', 'thread-even') ) ) $filters[] = "/^$item$/"; 
-		}
-		foreach($classes as $key => $class) 
-			foreach($filters as $filter) if( preg_match($filter, $class) ) unset($classes[$key]);
+	private function filter_classes($classes, $group){
+		foreach( $classes as $index => $class )
+			foreach( $this->options[$group] as $key => $maybe_regex ) {
+				$regex = empty($maybe_regex) ? "/^$key$/" : $maybe_regex;	// simple match for key if no regex supplied
+				if( preg_match($regex, $class) ) unset($classes[$index]);	
+			}
 		return $classes;
 	}
 	
@@ -102,85 +92,7 @@ class wp_declutter {
 	}
 	
 	function settings_page() {
-		global $wp_version;
-		
-		$wp_headers = array(
-			'X-Pingback' => array('X-Pingback header: a link to the Wordpress pingback handler. If you do not accept pingbacks on your site, you can remove this header.', 'X-Pingback: http://example.com/xmlrpc.php'),
-			'ETag' => array('Etag: an entity tag header used to check whether a feed has changed since it was last accessed. Wordpress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.', '')
-		);
-		
-		$wp_head_actions = array(
-			'feed_links' => array('Links to the blog and comments feeds.', '<link rel="alternate" type="application/rss+xml" title="Blog Feed" href="http://example.com/feed/" />'),
-			'feed_links_extra' => array('Links to additional feeds (such as comments, category, tag, author and search feeds).', '<link rel="alternate" type="application/rss+xml" title="Uncategorized Category Feed" href="http://example.com/tag/foo/feed/" />'), 
-			'rsd_link' => array('Link to the Really Simple Discovery service endpoint. This is an old publishing convention used to allow blogs to share information with other services, and is largely superceded by other methods now.', '<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://example.com/xmlrpc.php?rsd" />'),
-			'wlwmanifest_link' => array('Link to the Windows Live Writer manifest file. If you have never heard of Windows Live Writer, you definitely don\'t need this.', '<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://example.com/wp-includes/wlwmanifest.xml" />'),
-			'index_rel_link' => array('Link to the front page of your site.', '<link rel="index" title="Blog" href="http://example.com" />'),
-			'parent_post_rel_link' => array('Link to the parent of the current page, if it exists.', '<link rel="up" title="Parent post title" href="http://example.com/parent-post/" />'),
-			'start_post_rel_link' => array('Link to the first post on your blog.', '<link rel="start" title="Hello world!" href="http://example.com/hello-world/" />'),
-			'adjacent_posts_rel_link_wp_head' => array('Links to next/previous posts.', '<link rel="prev" title="Hello world!" href="http://example.com/hello-world/" />'),
-			'wp_generator' => array('A "generator" meta tag containing information about the version of Wordpress you are running. Some say that exposing details about your software version is a security risk. Others say it isn\'t. Take your pick.', '<meta name="generator" content="WordPress 3.0" />'),
-			'rel_canonical' => array('A canonical link for single posts/pages.', '<link rel="canonical" href="http://example.com/hello-world/" />'),
-			'wp_shortlink_wp_head' => array('Shortlink: a short URL to the current page. If you use pretty permalinks, this will be a query-string based url.', '<link rel="shortlink" href="http://example.com/?p=1" />'),
-		);
-		
-		$template_redirect_actions = array(
-			 'wp_shortlink_header' => array('Shortlink: in addition to putting a shortlink in the head of your HTML pages, Wordpress also sends an HTTP header with this information.', 'Link: <http://example.com/?p=1>; rel=shortlink')
-		);
-		
-		$feed_actions = array(
-			'the_generator' => array('A "generator" tag containing information about the version of Wordpress you are running.', '<generator>http://wordpress.org/?v=3.0</generator>')
-		);
-		
-		$post_classes = array(
-			'post' => array('post-<code>ID</code>: the ID of the post being displayed.', '<div class="post-1 ...'),
-			'type' => array('type-<code>type</code>: type of the post being displayed, prepended with "type-". Wordpress also creates a class name without the "type-" prepended.', '<div class="type-attachment ...'),
-			'sticky' => array('sticky: applied to sticky posts.', '<div class="sticky ...'),
-			'hentry' => array('hentry: applied for hAtom compliance.', '<div class="hentry ...'),
-			'category' => array('category-<code>category</code>: applied for each category under which the post is filed.', '<div class="category-uncategorized category-politics ...'),
-			'tag' => array('tag-<code>tag</code>: applied for each tag under which the post is filed.', '<div class="tag-poems tag-funny ...')
-		);
-		
-		$comment_classes = array(
-			'type' => array('<code>type</code>: the type of the comment (e.g., comment, trackback)', ''),
-			'byuser' => array('byuser: applied to comments from registered users.', ''),
-			'comment-author' => array('comment-author-<code>name</code>: applied to comments from registered users, with their name appended.', '<li class="byuser comment-author-gandalf ...'),
-			'bypostauthor' => array('bypostauthor: applied to comments by the post author.', ''),
-			'odd' => array('odd: applied to every other (odd) comment.', ''),
-			'alt' => array('alt: alias of "odd".', ''),
-			'even' => array('even: applied to every other (even) comment.', ''),
-			'thread-odd' => array('thread-odd: applied to every other (odd) comment in a threaded reply.', ''),
-			'thread-alt' => array('thread-alt: alias of "thread-odd".', ''),
-			'thread-even' => array('thread-even: applied to every other (even) comment in a threaded reply.', ''),
-			'depth' => array('depth-<code>depth</code>: the depth of a reply. Will always be "depth-1" if you have disabled threaded comments.', ''),
-		);
-		
-		// start out with 3.0 settings and work backwards.
-		if( version_compare($wp_version, '3', '<' ) ) {
-			// feed_links used to be feed_links_extra
-			$wp_head_actions['feed_links_extra'] = $wp_head_actions['feed_links'];
-			unset($wp_head_actions['feed_links']);
-			
-			// adjacent_posts function was changed
-			$wp_head_actions['adjacent_posts_rel_link'] = $wp_head_actions['adjacent_posts_rel_link_wp_head'];
-			unset($wp_head_actions['adjacent_posts_rel_link_wp_head']);
-			
-			// shortlinks don't exist
-			unset($wp_head_actions['wp_shortlink_wp_head']);
-			unset($template_redirect_actions['wp_shortlink_header']);
-			
-			// feed generator tags don't exist
-			unset($feed_actions['the_generator']);
-		}
-		
-		$this->option_groups = array(
-			'wp_head' => $wp_head_actions,
-			'wp_headers' => $wp_headers,
-			'template_redirect' => $template_redirect_actions,
-			'feed' => $feed_actions,
-			'post_classes' => $post_classes,
-			'comment_classes' => $comment_classes
-		);
-		
+		require(dirname(__FILE__).'/groups.php');
 		if(isset($_POST['submit'])) 
 			$this->update();
 	?>
@@ -192,27 +104,53 @@ class wp_declutter {
 	<div class="wrap">
 	<h2>Declutter Wordpress</h2>
 	<p>Wordpress comes with a bunch of default settings that insert various pieces of code into your site's pages. Some of these are optional (some might say unnecessary), and you can remove them if you wish.</p>
+	<p><small>Some items are marked [<strong>advanced</strong>], and it is suggested that you leave these checked if you do not understand what they are referring to.</small></p>
+	
 	<form action="" method="post" id="wp-declutter-settings">
+	<p id="declutter_select" style="display:none">Select a section to configure: <br />[<a id="show_wp_head" href="#">The HTML &lt;head&gt; section</a>] [<a id="show_feeds" href="#">Feeds</a>] [<a id="show_http" href="#">HTTP Headers</a>] [<a id="show_body" href="#">HTML &lt;body&gt;</a>] [<a id="show_posts" href="#">Posts</a>] [<a id="show_comments" href="#">Comments</a>] [<a id="show_all" href="#"><strong>Show All</strong></a>]</p>
 	
-	Jump to a specific section: [<a href="#s_wp_head">The HTML &lt;head&gt; section</a>] [<a href="#s_feeds">Feeds</a>] [<a href="#s_http">HTTP Headers</a>] [<a href="#s_posts">Post classes</a>] [<a href="#s_comments">Comment classes</a>]</p>
-	<h3 id="s_wp_head">The HTML &lt;head&gt; section</h3><p>Wordpress inserts the following optional tags into the head of your HTML pages. Most of this information is not visible to people visiting your site - it is intended for browsers and robots. Uncheck those items you wish to remove. Examples of each tag are provided below the descriptions.</p>
-	<ul><?php $this->list_items('wp_head'); ?></ul>
+	<div class="declutter_group" id="s_wp_head">
+	<h3>The HTML &lt;head&gt; section</h3><p>Wordpress inserts the following optional tags into the head of your HTML pages. Most of this information is not visible to people visiting your site - it is intended for browsers and robots. Uncheck those items you wish to remove. Examples of each tag are provided below the descriptions.</p><ul><?php $this->list_items('wp_head'); ?></ul>
+	</div>
 	
-	<h3 id="s_feeds">Feeds</h3><p>Wordpress inserts the following optional tags into feeds. Uncheck those items you wish to remove.</p>
+	<div class="declutter_group" id="s_feeds">
+	<h3>Feeds</h3><p>Wordpress inserts the following optional tags into feeds. Uncheck those items you wish to remove.</p>
 	<ul><?php $this->list_items('feed'); ?></ul>
+	</div>
 	
-	<h3 id="s_http">HTTP Headers</h3><p>Wordpress sends some optional HTTP headers by default whenever a page is requested. Uncheck those you do not wish to be sent.</p>
+	<div class="declutter_group" id="s_http">
+	<h3>HTTP Headers</h3><p>Wordpress sends some optional HTTP headers by default whenever a page is requested. Uncheck those you do not wish to be sent.</p>
 	<ul><?php $this->list_items('wp_headers'); $this->list_items('template_redirect'); ?></ul>
+	</div>
 	
-	<h3 id="s_posts">Post classes</h3><p>Wordpress inserts various class names into post <code>div</code>s based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling. Those which can be removed are listed blow. You can uncheck any you do not use.</p>
+	<div class="declutter_group" id="s_body">
+	<h3>HTML &lt;body&gt; </h3><p>Wordpress inserts the following class names into the &lt;body&gt; tag. As you can see the list is positively huge. You can uncheck any you do not use.</p><ul><?php $this->list_items('body_classes'); ?></ul>
+	</div>
+	
+	<div class="declutter_group" id="s_posts">
+	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>div</code>s based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling. Those which can be removed are listed blow. You can uncheck any you do not use.</p>
 	<ul><?php $this->list_items('post_classes'); ?></ul>
+	</div>
 	
-	<h3 id="s_comments">Comment classes</h3><p>Wordpress also inserts various class names into comments. You can uncheck any you do not want.</p>
-	<ul><?php $this->list_items('comment_classes'); ?></ul>
+	<div class="declutter_group" id="s_comments">
+	<h3>Comments</h3><p>Wordpress also inserts various class names into comments. You can uncheck any you do not want.</p><ul><?php $this->list_items('comment_classes'); ?></ul>
+	</div>
 	
 	<p class="submit"><input class="button-primary" type="submit" name="submit" value="Update settings" /></p>
 	</form>
 	</div>
+	<script>
+	jQuery(document).ready(function(){
+		jQuery('#declutter_select').show(); jQuery('.declutter_group').hide();
+		jQuery('#declutter_select > a').click(function(){
+			var toshow = jQuery(this).attr('id').replace('show_','s_');
+			if(toshow == 's_all') jQuery('.declutter_group').fadeIn('slow');
+			else {
+				jQuery('.declutter_group').hide(); jQuery('#' + toshow).fadeIn('slow');
+			}
+		});
+	});
+	</script>
 <?php
 	}
 	
@@ -220,10 +158,10 @@ class wp_declutter {
 		if(empty($this->option_groups[$group])) 
 			echo '<li>Your version of Wordpress does not have any entries in this section.</li>';
 		else 
-			foreach($this->option_groups[$group] as $key => $info) {
-				$desc = $info[0];
-				$example = $info[1] ? '<p class="example"><code>'.htmlspecialchars($info[1]).'</code></p>' : '';
-				$checked = in_array($key, $this->options[$group]) ? '' : "checked='checked'";
+			foreach($this->option_groups[$group] as $key => $item) {
+				$desc = $item[0];
+				$example = isset($item[1]) && $item[1] ? '<p class="example"><code>'.htmlspecialchars($item[1]).'</code></p>' : '';
+				$checked = array_key_exists($key, $this->options[$group]) ? '' : "checked='checked'";
 				echo "<li><input type='checkbox' name='{$group}__{$key}' $checked /> $desc $example</li>";
 			}
 	}
@@ -231,7 +169,10 @@ class wp_declutter {
 	private function update() {
 		foreach($this->option_groups as $group => $items) {
 			$unchecked = array();
-			foreach( array_keys($items) as $item ) if( !isset($_POST["{$group}__{$item}"]) ) $unchecked[] = $item;
+			foreach( $items as $key => $item ) if( !isset($_POST["{$group}__{$key}"]) ) {
+				// if no regex is supplied, leave the value empty, otherwise an array(key => regex)
+				$unchecked[$key] = isset($item[2]) ? $item[2] : '';
+			}
 			$this->options[$group] = $unchecked;
 		}
 		update_option('wp_declutter_options', $this->options);

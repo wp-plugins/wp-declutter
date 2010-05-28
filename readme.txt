@@ -24,10 +24,9 @@ The plugin currently lets you configure the following:
 	* Shortlink header
 	* Redundant Etag headers
 	* X-Pingback header
-* In posts:
-	* Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
-* In comments:
-	* Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
+* Remove HTML body classes that you do not need (there is a huge list of classes that Wordpress automatically inserts into the body tag)
+* Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
+* Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
 
 If you have any problems, please [post a ticket here](http://wordpress.org/tags/wp-declutter).
 
@@ -38,6 +37,12 @@ If you have any problems, please [post a ticket here](http://wordpress.org/tags/
 = Does this plugin work with PHP 4? =
 
 No. Please use it only with PHP 5.0 and above. Please don't email me about PHP errors when you try to install the plugin on a PHP 4 platform.
+
+== Changelog ==
+
+= 1.1 =
+* Added filtering for classes in the <body> tag
+* Note: some previous options may be reset after upgrade, because of some changes to how the plugin works - so please go to the settings page to check them.
 
 == Installation ==
 
