@@ -87,8 +87,9 @@ $post_classes = array(
 );
 
 $comment_classes = array(
-	'comment' => array('comment: applied to comments (as opposed to trackbacks).'),
+	'comment' => array('comment: applied to comments (as opposed to trackbacks, pingbacks etc).'),
 	'trackback' => array('trackback: applied to trackbacks.'),
+	'pingback' => array('pingback: applied to pingbacks.'),
 	'byuser' => array('byuser: applied to comments from registered users.'),
 	'comment-author' => array('comment-author-<code>name</code>: applied to comments from registered users, with their name appended.', '<li class="byuser comment-author-gandalf ...', '/^comment-author-/'),
 	'bypostauthor' => array('bypostauthor: applied to comments by the post author.'),
