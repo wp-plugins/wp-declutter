@@ -172,9 +172,9 @@ class wp_declutter {
 		else {
 			ksort($this->option_groups[$group]);	// sort by key for more sensible viewing
 			foreach($this->option_groups[$group] as $key => $item) {
-				$desc = $item[0];
-				$example = isset($item[1]) && $item[1] ? '<p class="example"><code>'.htmlspecialchars($item[1]).'</code></p>' : '';
-				$checked = array_key_exists($key, $this->options[$group]) ? '' : "checked='checked'";
+				$desc = $item['desc'];
+				$example = isset($item['example']) ? '<p class="example"><code>'.htmlspecialchars($item['example']).'</code></p>' : '';
+				$checked = isset($this->options[$group][$key]) ? '' : "checked='checked'";
 				echo "<li><input type='checkbox' name='{$group}__{$key}' $checked /> $desc $example</li>";
 			}
 		}
@@ -185,7 +185,7 @@ class wp_declutter {
 			$unchecked = array();
 			foreach( $items as $key => $item ) if( !isset($_POST["{$group}__{$key}"]) ) {
 				// if no regex is supplied, leave the value empty, otherwise an array(key => regex)
-				$unchecked[$key] = isset($item[2]) ? $item[2] : '';
+				$unchecked[$key] = isset($item['regex']) ? $item['regex'] : '';
 			}
 			$this->options[$group] = $unchecked;
 		}
