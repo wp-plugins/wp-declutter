@@ -84,7 +84,7 @@ class wp_declutter {
 	private function filter_classes($classes, $group){
 		foreach( $classes as $index => $class )
 			foreach( $this->options[$group] as $key => $maybe_regex ) {
-				$regex = empty($maybe_regex) ? "/^$key$/" : $maybe_regex;	// simple match for key if no regex supplied
+				$regex = empty($maybe_regex) ? '/^'.preg_quote($key).'$/' : $maybe_regex;	// simple match for key if no regex supplied
 				if( preg_match($regex, $class) ) {
 					unset($classes[$index]);
 					break;
