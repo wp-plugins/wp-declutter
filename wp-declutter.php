@@ -22,6 +22,8 @@ Author URI: http://rayofsolaris.net/
 
 */
 
+if(!defined('ABSPATH')) exit;
+
 class wp_declutter {
 	private $options;
 	

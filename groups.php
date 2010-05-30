@@ -7,6 +7,8 @@ Each sub array has structure $key => (desc, [example], [regex]).
 
 */
 
+if(!defined('ABSPATH')) exit;
+
 $wp_headers = array(
 	'X-Pingback' => array(
 		'desc' => 'X-Pingback header: a link to the Wordpress pingback handler. If you do not accept pingbacks on your site, you can remove this header.',
