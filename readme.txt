@@ -32,12 +32,6 @@ If you have any problems, please [post a ticket here](http://wordpress.org/tags/
 
 **This plugin requires PHP version 5. Please do not try installing it in a PHP 4 environment.**
 
-== Frequently Asked Questions ==
-
-= Does this plugin work with PHP 4? =
-
-No. Please use it only with PHP 5.0 and above. Please don't email me about PHP errors when you try to install the plugin on a PHP 4 platform.
-
 == Changelog ==
 
 = 1.1 =
