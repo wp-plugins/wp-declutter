@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Declutter Wordpress
-Plugin URI: http://rayofsolaris.net/code?p=declutter-wordpress
+Plugin URI: http://rayofsolaris.net/code/?p=declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
 Version: 1.1
 Author: Samir Shah
