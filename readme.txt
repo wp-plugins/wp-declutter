@@ -28,7 +28,7 @@ The plugin currently lets you configure the following:
 * Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
 * Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
 
-If you have any problems, please [post a ticket here](http://wordpress.org/tags/wp-declutter).
+If you have any problems or suggestions, you can [email me](http://rayofsolaris.net/contact/).
 
 **This plugin requires PHP version 5. Please do not try installing it in a PHP 4 environment.**
 
