@@ -34,6 +34,10 @@ If you have any problems or suggestions, you can [email me](http://rayofsolaris.
 
 == Changelog ==
 
+= 1.2 =
+* Added the option to completely disable body, post and comment classes.
+* Added new class filters for classes introduced in Wordpress 3.1
+
 = 1.1 =
 * Added filtering for classes in the <body> tag
 * Note: some previous options may be reset after upgrade, because of some changes to how the plugin works - so please go to the settings page to check them.

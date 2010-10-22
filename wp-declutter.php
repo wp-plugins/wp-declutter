@@ -3,7 +3,7 @@
 Plugin Name: Declutter Wordpress
 Plugin URI: http://rayofsolaris.net/code/?p=declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.1
+Version: 1.2
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 */
@@ -25,22 +25,25 @@ Author URI: http://rayofsolaris.net/
 if(!defined('ABSPATH')) exit;
 
 class wp_declutter {
-	private $options;
+	private $options, $option_groups;
 	
-	function __construct() {
-		add_action('activate_wp-declutter/wp-declutter.php', array(&$this, 'activate') );
-		add_action('admin_menu', array(&$this, 'settings_menu') );
+	function __construct(){
 		add_action('plugins_loaded', array(&$this,'pre_template_filter') );
+		
+		if( is_admin() ){
+			add_action('activate_wp-declutter/wp-declutter.php', array(&$this, 'activate') );
+			add_action('admin_menu', array(&$this, 'settings_menu') );
+		}	
 	}
 	
-	function activate() {
+	function activate(){
 		$options = get_option('wp_declutter_options', array() );
-		$defaults = array('wp_head', 'template_redirect', 'wp_headers', 'feed', 'body_classes', 'post_classes', 'comment_classes');
+		$defaults = array('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'special');
 		foreach($defaults as $d) if( !isset($options[$d]) ) $options[$d] = array();	// empty array
 		update_option('wp_declutter_options', $options);
 	}
 	
-	function pre_template_filter() {
+	function pre_template_filter(){
 		$this->options = get_option('wp_declutter_options');
 		add_action('template_redirect', array(&$this, 'template_filter') );	// stuff to do after template redirect	
 		
@@ -65,17 +68,24 @@ class wp_declutter {
 		}
 		
 		// body, post, comment classes
-		if($this->options['body_classes']) add_filter('body_class', array(&$this, 'filter_body_classes'));
-		if($this->options['post_classes']) add_filter('post_class', array(&$this, 'filter_post_classes'));
-		if($this->options['comment_classes']) add_filter('comment_class', array(&$this, 'filter_comment_classes'));
+		add_filter('body_class', array(&$this, 'filter_body_classes'));
+		add_filter('post_class', array(&$this, 'filter_post_classes'));
+		add_filter('comment_class', array(&$this, 'filter_comment_classes'));
 	}
 	
-	function filter_body_classes($classes){return $this->filter_classes($classes, 'body_classes'); }
-	function filter_post_classes($classes){return $this->filter_classes($classes, 'post_classes'); }
-	function filter_comment_classes($classes){return $this->filter_classes($classes, 'comment_classes'); }
+	function filter_body_classes($classes){
+		return $this->filter_classes($classes, 'body_classes');
+	}
+	function filter_post_classes($classes){
+		return $this->filter_classes($classes, 'post_classes');
+	}
+	function filter_comment_classes($classes){
+		return $this->filter_classes($classes, 'comment_classes');
+	}
 	
 	private function remove_actions($hook, $group, $priorities = '') {
 		// remove all the actions given by the keys of an option group, for the hook specified
+		// if the option is not set, then it will not exist in the this->options[group] array
 		if(!$priorities) $priorities = array();
 		foreach( array_keys($this->options[$group]) as $act ) {
 			$priority = isset($priorities[$act]) ? $priorities[$act] : 10;
@@ -84,7 +94,12 @@ class wp_declutter {
 	}
 	
 	private function filter_classes($classes, $group){
-		foreach( $classes as $index => $class )
+		// remove everything?
+		if( isset($this->options['special'][$group]) )
+			return array();
+			
+		// otherwise, if options array is not empty...
+		if($this->options[$group]) foreach( $classes as $index => $class ){
 			foreach( $this->options[$group] as $key => $maybe_regex ) {
 				$regex = empty($maybe_regex) ? '/^'.preg_quote($key).'$/' : $maybe_regex;	// simple match for key if no regex supplied
 				if( @preg_match($regex, $class) ) {
@@ -92,6 +107,7 @@ class wp_declutter {
 					break;
 				}
 			}
+		}
 		return $classes;
 	}
 	
@@ -108,6 +124,7 @@ class wp_declutter {
 	#wp-declutter-settings ul, .indent {padding-left: 1.5em}
 	#wp-declutter-settings ul {font-size: 11px}
 	.example {line-height: 50% !important}
+	.special_note {color: brown}
 	</style>
 	<div class="wrap">
 	<h2>Declutter Wordpress</h2>
@@ -131,15 +148,36 @@ class wp_declutter {
 	</div>
 	
 	<div class="declutter_group" id="s_body">
-	<h3>HTML &lt;body&gt; </h3><p>Wordpress inserts the following class names into the &lt;body&gt; tag. As you can see the list is positively huge. You can uncheck any you do not use.</p><ul><?php $this->list_items('body_classes'); ?></ul>
+	<h3>HTML &lt;body&gt; </h3><p>Wordpress inserts a number of class names into the <code>&lt;body&gt;</code> tag.</p>
+	<p><strong></strong></p>
+	<p><input type="checkbox" name="special__body_classes" class="special_declutter_option" <?php if(isset($this->options['special']['body_classes'])) echo 'checked="checked"';?> /> Remove all classes from the <code>&lt;body&gt;</code> tag. <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
+	<p id="body_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in the <code>&lt;body&gt;</code> tag. Deselect the option above to filter classes individually.</p>
+	<div id="body_classes">
+		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
+		<ul id="body_classes"><?php $this->list_items('body_classes'); ?></ul>
+	</div>
 	</div>
 	
 	<div class="declutter_group" id="s_posts">
-	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>div</code>s based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling. Those which can be removed are listed blow. You can uncheck any you do not use.</p><ul><?php $this->list_items('post_classes'); ?></ul>
+	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>&lt;div&gt;</code> elements based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling.</p>
+	<p><input type="checkbox" name="special__post_classes" class="special_declutter_option" <?php if(isset($this->options['special']['post_classes'])) echo 'checked="checked"';?> /> Remove all classes from post <code>&lt;div&gt;</code> elements. <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
+	<p id="post_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in post <code>&lt;div&gt;</code> elements. Deselect the option above to filter classes individually.</p>
+	<div id="post_classes">
+		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
+		<ul><?php $this->list_items('post_classes'); ?></ul>
+	</div>
 	</div>
 	
 	<div class="declutter_group" id="s_comments">
-	<h3>Comments</h3><p>Wordpress also inserts various class names into comments. You can uncheck any you do not want.</p><ul><?php $this->list_items('comment_classes'); ?></ul>
+	<h3>Comments</h3><p>Wordpress also inserts various class names into comments.</p>
+	<p><input type="checkbox" name="special__comment_classes" class="special_declutter_option" <?php if(isset($this->options['special']['comment_classes'])) echo 'checked="checked"';?> /> Remove all classes from comment elements (normally <code>&lt;li&gt;</code> elements, but it depends on your theme). <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
+	<p id="comment_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in comment elements. Deselect the option above to filter classes individually.</p>
+	<div id="comment_classes">
+		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
+		<ul><?php $this->list_items('comment_classes'); ?></ul>
+	</div>
+	
+	
 	</div>
 	
 	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
@@ -163,6 +201,20 @@ class wp_declutter {
 			if($current) echo "jQuery('#$current').click();";
 			else echo "jQuery('.declutter_group').hide();";
 		?>
+		// Special option handling
+		jQuery(".special_declutter_option").change(function(){
+			var i = jQuery(this);
+			var refto = i.attr("name").replace("special__", "");
+			if( i.attr("checked") == true ){
+				jQuery("#" + refto).hide();
+				jQuery("#" + refto + "_special_note").show();
+			}
+			else {
+				jQuery("#" + refto).show();
+				jQuery("#" + refto + "_special_note").hide();
+			}
+		});
+		jQuery(".special_declutter_option").change();	// trigger the function
 	});
 	</script>
 <?php
@@ -183,15 +235,25 @@ class wp_declutter {
 	}
 	
 	private function update() {
+		// option groups, UNchecked means active
 		foreach($this->option_groups as $group => $items) {
 			$unchecked = array();
 			foreach( $items as $key => $item ) if( !isset($_POST["{$group}__{$key}"]) ) {
 				// if no regex is supplied, leave the value empty, otherwise an array(key => regex)
 				$unchecked[$key] = isset($item['regex']) ? $item['regex'] : '';
 			}
-			$this->options[$group] = $unchecked;
+			$options[$group] = $unchecked;
 		}
-		update_option('wp_declutter_options', $this->options);
+		
+		// special options stored in $options['special'], checked means active
+		foreach( array('body_classes', 'post_classes', 'comment_classes') as $opt ){
+			if( isset($_POST["special__$opt"]) ) $options['special'][$opt] = true;
+		}
+		
+		// refresh local option lost
+		$this->options = $options;
+
+		update_option('wp_declutter_options', $options);
 		echo '<div id="message" class="updated fade"><p>Options updated.</p></div>';
 	}
 

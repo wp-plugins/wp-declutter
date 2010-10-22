@@ -1,6 +1,6 @@
 <?php
 /* 
-included in the context of $this->settings_page
+included in the context of $this->settings_page()
 
 Group definitions: each group is an array of arrays. 
 Each sub array has structure $key => (desc, [example], [regex]). 
@@ -21,7 +21,7 @@ $wp_headers = array(
 		'desc' => 'Expires: a header used for cache control, sent by Wordpress when caching is disallowed. It is superfluous when the HTTP/1.1 Cache-Control directive is used, but some clients may still use it.')
 );
 
-$wp_head_actions = array(
+$wp_head = array(
 	'feed_links' => array(
 		'desc' => 'Links to the blog and comments feeds.',
 		'example' => '<link rel="alternate" type="application/rss+xml" title="Blog Feed" href="http://example.com/feed/" />'),
@@ -57,19 +57,21 @@ $wp_head_actions = array(
 		'example' => '<link rel="shortlink" href="http://example.com/?p=1" />'),
 );
 
-$template_redirect_actions = array(
+$template_redirect = array(
 	 'wp_shortlink_header' => array(
 		'desc' => 'Shortlink: in addition to putting a shortlink in the head of your HTML pages, Wordpress also sends an HTTP header with this information.', 
 		'example' => 'Link: <http://example.com/?p=1>; rel=shortlink')
 );
 
-$feed_actions = array(
+$feed = array(
 	'the_generator' => array(
 		'desc' => 'A "generator" tag containing information about the version of Wordpress you are running.', 
 		'example' => '<generator>http://wordpress.org/?v=3.0</generator>')
 );
 
 $body_classes = array(
+	'rtl' => array(
+		'desc' => 'rtl: applied to pages whose text direction is declared as "left to right".'),
 	'home' => array(
 		'desc' => 'home: applied to the front page.'),
 	'blog' => array(
@@ -103,6 +105,10 @@ $body_classes = array(
 		'desc' => 'attachment-<code>MIME type</code>: applied to attachment pages views, with attachment MIME type appended.', 
 		'example' => '<body class="single single-post postid-5 attachmentid-5 attachment image/png ...', 
 		'regex' => '/^attachment-.+\/.+/'),
+	'post-type-archive' => array(
+		'desc' => 'post-type-archive: applied to archives of a particular post type.'),
+	'post-type-archive-posttype' => array(
+		'desc' => 'post-type-archive-<code>type</code>: applied to archives of a particular post type, with the post type appended.'),
 	'author' => array(
 		'desc' => 'author: applied to author archives.'),
 	'author-name' => array(
@@ -119,16 +125,22 @@ $body_classes = array(
 	'tag-name' => array(
 		'desc' => 'tag-<code>tag</code>: applied to tag archives, with the name of the tag appended.',  
 		'regex' => '/^tag-(?!paged-)/'),
+	'tax-name' => array(
+		'desc' => 'tax-<code>taxonomy</code>: applied to taxonomy archives, with the taxonomy name appended.',  
+		'regex' => '/^tax-(?!paged-)/'),
+	'term-name' => array(
+		'desc' => 'term-<code>term</code>: applied to taxonomy archives, with the terminology slug and id of the associated terms appended.',  
+		'regex' => '/^term-(?!paged-)/'),
 	'page' => array(
 		'desc' => 'page: applied to pages.'),
 	'page-id-id' => array(
 		'desc' => 'page-id-<code>ID</code>: applied to pages, with the post ID appended.', 
 		'example' => '<body class="single single-page postid-6 page-id-6 ...',
 		'regex' => '/^page-id-/'),
-	'post-parent' => array(
-		'desc' => 'post-parent: applied to posts which have child posts.'),
-	'post-child' => array(
-		'desc' => 'post-child: applied to posts which have a parent post.'),
+	'page-parent' => array(
+		'desc' => 'page-parent: applied to pages which have child pages.'),
+	'page-child' => array(
+		'desc' => 'page-child: applied to pages which have a parent page.'),
 	'parent-pageid-' => array(
 		'desc' => 'parent-pageid-<code>ID</code>: applied to posts which have a parent post, with the ID of the parent post appended.', 
 		'example' => '<body class="single single-page post-child parent-pageid-17 ...',
@@ -169,6 +181,9 @@ $body_classes = array(
 	'search-paged-N' => array(
 		'desc' => 'search-paged-<code>page number</code>: applied to paged views for searches.',
 		'regex' => '/^search-paged-\d+/'),
+	'post-type-paged-N' => array(
+		'desc' => 'post-type-paged-<code>page number</code>: applied to paged views for post type archives.',
+		'regex' => '/^post-type-paged-\d+/')
 );
 
 $post_classes = array(
@@ -229,28 +244,20 @@ $comment_classes = array(
 global $wp_version;
 if( version_compare($wp_version, '3', '<' ) ) {
 	// feed_links used to be feed_links_extra
-	$wp_head_actions['feed_links_extra'] = $wp_head_actions['feed_links'];
-	unset($wp_head_actions['feed_links']);
+	$wp_head['feed_links_extra'] = $wp_head['feed_links'];
+	unset($wp_head['feed_links']);
 	
 	// adjacent_posts function was changed
-	$wp_head_actions['adjacent_posts_rel_link'] = $wp_head_actions['adjacent_posts_rel_link_wp_head'];
-	unset($wp_head_actions['adjacent_posts_rel_link_wp_head']);
+	$wp_head['adjacent_posts_rel_link'] = $wp_head['adjacent_posts_rel_link_wp_head'];
+	unset($wp_head['adjacent_posts_rel_link_wp_head']);
 	
 	// shortlinks don't exist
-	unset($wp_head_actions['wp_shortlink_wp_head']);
-	unset($template_redirect_actions['wp_shortlink_header']);
+	unset($wp_head['wp_shortlink_wp_head']);
+	unset($template_redirect['wp_shortlink_header']);
 	
 	// feed generator tags don't exist
-	unset($feed_actions['the_generator']);
+	unset($feed['the_generator']);
 }
 
-$this->option_groups = array(
-	'wp_head' => $wp_head_actions,
-	'wp_headers' => $wp_headers,
-	'template_redirect' => $template_redirect_actions,
-	'feed' => $feed_actions,
-	'body_classes' => $body_classes,
-	'post_classes' => $post_classes,
-	'comment_classes' => $comment_classes
-);
+$this->option_groups = compact('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes');
 ?>
