@@ -1,8 +1,8 @@
 === Declutter Wordpress ===
 Contributors: solarissmoke
-Tags: declutter, wp_head, generator, meta, shortlink
+Tags: declutter, wp_head, generator, meta, shortlink, class, body
 Requires at least: 2.9
-Tested up to: 3.0
+Tested up to: 3.1
 Stable tag: trunk
 
 This plugin lets you remove some of the default headers, tags and classes that Wordpress inserts into your template by default.
@@ -28,15 +28,18 @@ The plugin currently lets you configure the following:
 * Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
 * Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
 
-If you have any problems or suggestions, you can [email me](http://rayofsolaris.net/contact/).
+If you come across any bugs or have suggestions, please contact me at [rayofsolaris.net](http://rayofsolaris.net).
 
 **This plugin requires PHP version 5. Please do not try installing it in a PHP 4 environment.**
 
 == Changelog ==
 
+= 1.3 =
+* Added new class filters for classes introduced in Wordpress 3.1 beta/RC
+
 = 1.2 =
 * Added the option to completely disable body, post and comment classes.
-* Added new class filters for classes introduced in Wordpress 3.1
+* Added new class filters for classes introduced in Wordpress 3.1 alpha
 
 = 1.1 =
 * Added filtering for classes in the <body> tag

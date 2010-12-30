@@ -98,6 +98,9 @@ $body_classes = array(
 		'desc' => 'postid-<code>ID</code>: applied to single views, with the ID of the post appended.', 
 		'example' => '<body class="single single-post postid-2 ...',
 		'regex' => '/^postid-/'),
+	'single-format-' => array(
+		'desc' => 'single-format-<code>format</code>: applied to all posts, with the post format appended. The default is <code>single-format-standard</code>.',
+		'regex' => '/^single-format-/'),
 	'attachment-' => array(
 		'desc' => 'attachmentid-<code>ID</code>: applied to attachment pages views, with the post ID appended.', 
 		'example' => '<body class="single single-post postid-5 attachmentid-5 ...'),
@@ -113,24 +116,37 @@ $body_classes = array(
 		'desc' => 'author: applied to author archives.'),
 	'author-name' => array(
 		'desc' => 'author-<code>name</code>: applied to author archives, with the name of the author appended.', 
-		'example' => '<body class="single author author-gandalf ...',
-		'regex' => '/^author-(?!paged-)/'),
+		'example' => '<body class="archive author author-gandalf ...',
+		'regex' => '/^author-(?!paged-|\d+$)/'),
+	'author-id' => array(
+		'desc' => 'author-<code>author-id</code>: applied to author archives, with the database ID of the author appended.', 
+		'example' => '<body class="archive author author-12 ...',
+		'regex' => '/^author-\d+$/'),
 	'category' => array(
 		'desc' => 'category: applied to category archives.'),
 	'category-name' => array(
-		'desc' => 'category-<code>category</code>: applied to category archives, with the name of the category appended.',
-		'regex' => '/^category-(?!paged-)/'),
+		'desc' => 'category-<code>category</code>: applied to category archives, with the databse ID of the category appended.',
+		'regex' => '/^category-(?!paged-|\d+$))/'),
+	'category-id' => array(
+		'desc' => 'category-<code>category-id</code>: applied to category archives, with the name of the category appended.',
+		'regex' => '/^category-\d+$/'),
 	'tag' => array(
 		'desc' => 'tag: applied to tag archives.'),
 	'tag-name' => array(
 		'desc' => 'tag-<code>tag</code>: applied to tag archives, with the name of the tag appended.',  
-		'regex' => '/^tag-(?!paged-)/'),
+		'regex' => '/^tag-(?!paged-|\d+$)/'),
+	'tag-id' => array(
+		'desc' => 'tag-<code>tag-id</code>: applied to tag archives, with the database ID of the tag appended.',
+		'regex' => '/^tag-\d+$/'),
 	'tax-name' => array(
 		'desc' => 'tax-<code>taxonomy</code>: applied to taxonomy archives, with the taxonomy name appended.',  
 		'regex' => '/^tax-(?!paged-)/'),
 	'term-name' => array(
-		'desc' => 'term-<code>term</code>: applied to taxonomy archives, with the terminology slug and id of the associated terms appended.',  
-		'regex' => '/^term-(?!paged-)/'),
+		'desc' => 'term-<code>term</code>: applied to taxonomy archives, with the name of the associated term appended.',  
+		'regex' => '/^term-(?!paged-|\d+$)/'),
+	'term-id' => array(
+		'desc' => 'term-<code>term-id</code>: applied to taxonomy archives, with the database ID of the associated term appended.',
+		'regex' => '/^term-\d+$/'),
 	'page' => array(
 		'desc' => 'page: applied to pages.'),
 	'page-id-id' => array(
@@ -156,6 +172,8 @@ $body_classes = array(
 		'desc' => 'search-no-results: applied to search pages, when no results have been found.'),
 	'logged-in' => array(
 		'desc' => 'logged-in: applied when a user is logged in.'),
+	'admin-bar' => array(
+		'desc' => 'admin-bad: applied when the admin bar is showing (Wordpress 3.1 an later).'),
 	'paged-N' => array(
 		'desc' => 'paged-<code>page number</code>: applied to paged views, with the page number appended.', 
 		'example' => '<body class="paged-2 ...',
@@ -190,10 +208,19 @@ $post_classes = array(
 	'post-id' => array(
 		'desc' => 'post-<code>ID</code>: the ID of the post being displayed.', 
 		'example' => '<div class="post-1 ...',
-		'regex' => '/^post-\d+/'),
+		'regex' => '/^post-\d+$/'),
 	'type' => array(
 		'desc' => 'type-<code>type</code>: type of the post being displayed, prepended with "type-". Wordpress also creates a class name without the "type-" prepended.',
 		'regex' => '/^type-/'),
+	'status' => array(
+		'desc' => 'status-<code>status</code>: the status of the post being displayed (e.g., "publish", "draft", "private").', 
+		'example' => '<div class="status-private status-publish ...',
+		'regex' => '/^status-/'),
+	'format-' => array(
+		'desc' => 'format-<code>format</code>: applied to all posts, with the post format appended. The default is <code>format-standard</code>.',
+		'regex' => '/^format-/'),
+	'post-password-required' => array(
+		'desc' => 'post-password-required: applied to password-protected posts.'),
 	'sticky' => array(
 		'desc' => 'sticky: applied to sticky posts.'),
 	'hentry' => array(
