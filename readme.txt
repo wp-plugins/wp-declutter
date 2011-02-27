@@ -34,6 +34,11 @@ If you come across any bugs or have suggestions, please contact me at [rayofsola
 
 == Changelog ==
 
+= 1.4 =
+* Added version-specific filters for Wordpress 3.1
+* Modified upgrade routine to account for changes in upgrade procedure in Wordpress 3.1
+* Performance improvements for class filtering
+
 = 1.3 =
 * Added new class filters for classes introduced in Wordpress 3.1 beta/RC
 

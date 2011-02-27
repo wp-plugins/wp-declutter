@@ -173,7 +173,7 @@ $body_classes = array(
 	'logged-in' => array(
 		'desc' => 'logged-in: applied when a user is logged in.'),
 	'admin-bar' => array(
-		'desc' => 'admin-bad: applied when the admin bar is showing (Wordpress 3.1 an later).'),
+		'desc' => 'admin-bar: applied when the admin bar is showing.'),
 	'paged-N' => array(
 		'desc' => 'paged-<code>page number</code>: applied to paged views, with the page number appended.', 
 		'example' => '<body class="paged-2 ...',
@@ -272,18 +272,27 @@ global $wp_version;
 if( version_compare($wp_version, '3', '<' ) ) {
 	// feed_links used to be feed_links_extra
 	$wp_head['feed_links_extra'] = $wp_head['feed_links'];
-	unset($wp_head['feed_links']);
+	unset( $wp_head['feed_links'] );
 	
 	// adjacent_posts function was changed
 	$wp_head['adjacent_posts_rel_link'] = $wp_head['adjacent_posts_rel_link_wp_head'];
-	unset($wp_head['adjacent_posts_rel_link_wp_head']);
+	unset( $wp_head['adjacent_posts_rel_link_wp_head'] );
 	
 	// shortlinks don't exist
-	unset($wp_head['wp_shortlink_wp_head']);
-	unset($template_redirect['wp_shortlink_header']);
+	unset( $wp_head['wp_shortlink_wp_head'] );
+	unset( $template_redirect['wp_shortlink_header'] );
 	
 	// feed generator tags don't exist
-	unset($feed['the_generator']);
+	unset( $feed['the_generator'] );
+}
+if( version_compare($wp_version, '3.1', '<' ) ) {
+	// new post classes
+	foreach( array( 'format-', 'post-password-required' ) as $v )
+		unset( $post_classes[$v] );
+	
+	// new body classes
+	foreach( array( 'single-format-', 'post-type-archive', 'post-type-archive-posttype', 'author-id', 'category-id', 'tag-id', 'tax-name', 'term-name', 'term-id', 'admin-bar', 'post-type-paged-N' ) as $v )
+		unset( $body_classes[$v] );
 }
 
 $this->option_groups = compact('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes');

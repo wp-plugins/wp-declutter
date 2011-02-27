@@ -3,48 +3,39 @@
 Plugin Name: Declutter Wordpress
 Plugin URI: http://rayofsolaris.net/code/declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.3
+Version: 1.4
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
-*/
-
-/* Copyright 2010 Samir Shah (email : samir[at]rayofsolaris.net)
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU General Public License for more details.
-
+License: GPL2
 */
 
 if(!defined('ABSPATH')) exit;
 
-class wp_declutter {
+class WP_Declutter {
+	const db_version = 1;	// since 1.4
 	private $options, $option_groups;
 	
 	function __construct(){
 		add_action('plugins_loaded', array(&$this,'pre_template_filter') );
 		
-		if( is_admin() ){
-			add_action('activate_wp-declutter/wp-declutter.php', array(&$this, 'activate') );
+		if( is_admin() )
 			add_action('admin_menu', array(&$this, 'settings_menu') );
-		}	
 	}
 	
-	function activate(){
-		$options = get_option('wp_declutter_options', array() );
-		$defaults = array('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'special');
-		foreach($defaults as $d) if( !isset($options[$d]) ) $options[$d] = array();	// empty array
-		update_option('wp_declutter_options', $options);
+	private function load_options() {
+		// load options, upgrading if necessary
+		$options = get_option( 'wp_declutter_options', array() );
+		if( !isset( $options['options_version'] ) || $options['options_version'] < self::db_version ) {
+			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'special' );
+			foreach( $defaults as $d ) if( !isset( $options[$d] ) ) $options[$d] = array();	// empty array
+			$options['options_version'] = self::db_version;
+			update_option( 'wp_declutter_options' , $options );
+		}
+		$this->options = $options;
 	}
 	
 	function pre_template_filter(){
-		$this->options = get_option('wp_declutter_options');
+		$this->load_options();
 		add_action('template_redirect', array(&$this, 'template_filter') );	// stuff to do after template redirect	
 		
 		// headers
@@ -60,7 +51,7 @@ class wp_declutter {
 	
 	function template_filter() {
 		// wp_head
-		$this->remove_actions('wp_head', 'wp_head', array('feed_links' => 2, 'feed_links_extra' => 3) );
+		$this->remove_actions( 'wp_head', 'wp_head', array('feed_links' => 2, 'feed_links_extra' => 3) );
 		
 		// feed
 		if( array_key_exists('the_generator', $this->options['feed']) ) {
@@ -98,12 +89,17 @@ class wp_declutter {
 		if( isset($this->options['special'][$group]) )
 			return array();
 			
+		$filters = $this->options[$group];
+		
 		// otherwise, if options array is not empty...
-		if($this->options[$group]) foreach( $classes as $index => $class ){
-			foreach( $this->options[$group] as $key => $maybe_regex ) {
-				$regex = empty($maybe_regex) ? '/^'.preg_quote($key).'$/' : $maybe_regex;	// simple match for key if no regex supplied
+		if( !empty( $filters ) ) foreach( $classes as $index => $class ){
+			foreach( $filters as $key => $maybe_regex ) {
+				$simple = empty( $maybe_regex );
+				$regex = $simple ? '/^'.preg_quote($key).'$/' : $maybe_regex;	// simple match for key if no regex supplied
 				if( @preg_match($regex, $class) ) {
 					unset($classes[$index]);
+					if( $simple )	// no need to check for this again
+						unset( $filters[$key] );
 					break;
 				}
 			}
@@ -250,15 +246,14 @@ class wp_declutter {
 			if( isset($_POST["special__$opt"]) ) $options['special'][$opt] = true;
 		}
 		
-		// refresh local option lost
+		// refresh local option list
 		$this->options = $options;
 
-		update_option('wp_declutter_options', $options);
+		update_option( 'wp_declutter_options', $options );
 		echo '<div id="message" class="updated fade"><p>Options updated.</p></div>';
 	}
 
 } // class
 
-// load
-$wp_declutter = new wp_declutter();
+new WP_Declutter();
 ?>
