@@ -27,6 +27,7 @@ The plugin currently lets you configure the following:
 * Remove HTML body classes that you do not need (there is a huge list of classes that WordPress automatically inserts into the body tag)
 * Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
 * Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
+* Remove menu item classes that you do not need (e.g., `menu-item`, `current-menu-item`, `current_page_ancestor`)
 
 If you come across any bugs or have suggestions, please contact me at [rayofsolaris.net](http://rayofsolaris.net).
 
