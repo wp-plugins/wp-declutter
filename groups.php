@@ -11,14 +11,14 @@ if(!defined('ABSPATH')) exit;
 
 $wp_headers = array(
 	'X-Pingback' => array(
-		'desc' => 'X-Pingback header: a link to the Wordpress pingback handler. If you do not accept pingbacks on your site, you can remove this header.',
+		'desc' => 'X-Pingback header: a link to the WordPress pingback handler. If you do not accept pingbacks on your site, you can remove this header.',
 		'example' => 'X-Pingback: http://example.com/xmlrpc.php'),
 	'ETag' => array(
-		'desc' => 'Etag: an entity tag header used to check whether a feed has changed since it was last accessed. Wordpress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.'),
+		'desc' => 'Etag: an entity tag header used to check whether a feed has changed since it was last accessed. WordPress also sends a "Last-Modified" header which serves the same purpose, so sending both of them is unnecessary.'),
 	'Pragma' => array(
-		'desc' => 'Pragma: a HTTP/1.0 header used for cache control, sent by Wordpress when caching is disallowed. It is superceded by the HTTP/1.1 Cache-Control directive, but some clients may still use it.'),
+		'desc' => 'Pragma: a HTTP/1.0 header used for cache control, sent by WordPress when caching is disallowed. It is superceded by the HTTP/1.1 Cache-Control directive, but some clients may still use it.'),
 	'Expires' => array(
-		'desc' => 'Expires: a header used for cache control, sent by Wordpress when caching is disallowed. It is superfluous when the HTTP/1.1 Cache-Control directive is used, but some clients may still use it.')
+		'desc' => 'Expires: a header used for cache control, sent by WordPress when caching is disallowed. It is superfluous when the HTTP/1.1 Cache-Control directive is used, but some clients may still use it.')
 );
 
 $wp_head = array(
@@ -47,7 +47,7 @@ $wp_head = array(
 		'desc' => 'Links to next/previous posts.', 
 		'example' => '<link rel="prev" title="Hello world!" href="http://example.com/hello-world/" />'),
 	'wp_generator' => array(
-		'desc' => 'A "generator" meta tag containing information about the version of Wordpress you are running. Some say that exposing details about your software version is a security risk. Others say it isn\'t. Take your pick.', 
+		'desc' => 'A "generator" meta tag containing information about the version of WordPress you are running. Some say that exposing details about your software version is a security risk. Others say it isn\'t. Take your pick.', 
 		'example' => '<meta name="generator" content="WordPress 3.0" />'),
 	'rel_canonical' => array(
 		'desc' => 'A canonical link for single posts/pages.', 
@@ -59,13 +59,13 @@ $wp_head = array(
 
 $template_redirect = array(
 	 'wp_shortlink_header' => array(
-		'desc' => 'Shortlink: in addition to putting a shortlink in the head of your HTML pages, Wordpress also sends an HTTP header with this information.', 
+		'desc' => 'Shortlink: in addition to putting a shortlink in the head of your HTML pages, WordPress also sends an HTTP header with this information.', 
 		'example' => 'Link: <http://example.com/?p=1>; rel=shortlink')
 );
 
 $feed = array(
 	'the_generator' => array(
-		'desc' => 'A "generator" tag containing information about the version of Wordpress you are running.', 
+		'desc' => 'A "generator" tag containing information about the version of WordPress you are running.', 
 		'example' => '<generator>http://wordpress.org/?v=3.0</generator>')
 );
 
@@ -210,7 +210,7 @@ $post_classes = array(
 		'example' => '<div class="post-1 ...',
 		'regex' => '/^post-\d+$/'),
 	'type' => array(
-		'desc' => 'type-<code>type</code>: type of the post being displayed, prepended with "type-". Wordpress also creates a class name without the "type-" prepended.',
+		'desc' => 'type-<code>type</code>: type of the post being displayed, prepended with "type-". WordPress also creates a class name without the "type-" prepended.',
 		'regex' => '/^type-/'),
 	'status' => array(
 		'desc' => 'status-<code>status</code>: the status of the post being displayed (e.g., "publish", "draft", "private").', 
@@ -267,6 +267,50 @@ $comment_classes = array(
 		'regex' => '/^depth-\d+/'),
 );
 
+$menu_classes = array(
+	'menu-item' => array(
+		'desc' => 'menu-item: applied to each item in a custom navigation menu.'),
+	'menu-item-type-' => array(
+		'desc' => 'menu-item-type-<code>type</code>: applied to each menu item in a custom navigation menu, where the type is the type of the object being referenced (e.g., taxonomy, post_type).',
+		'example' => '<li class="menu-item menu-item-type-taxonomy ...',
+		'regex' => '/^menu-item-type-/'),
+	'menu-item-object-' => array(
+		'desc' => 'menu-item-object-<code>object</code>: applied to each menu item in a custom navigation menu, where the object is the object being used to populate the item (e.g., category, tag, post, page).',
+		'example' => '<li class="menu-item menu-item-object-post ...',
+		'regex' => '/^menu-item-object-/'),
+	'current-menu-item' => array(
+		'desc' => 'current-menu-item: applied to a menu item if it corresponds to the currently queried object.'),
+	'page_item' => array(
+		'desc' => 'page_item: applied to menu items for pages.'),
+	'page-item-' => array(
+		'desc' => 'page-item-<code>ID</code>: applied to menu items for pages, with the ID of the page appended.',
+		'regex' => '/^page-item-\d+/'),
+	'current_page_item' => array(
+		'desc' => 'current_page_item: applied to a menu item if it is for a page, and that page is being viewed.'),
+	'menu-item-home' => array(
+		'desc' => 'menu-item-home: applied to the menu item that corresponds to the site home page.'),
+	'current_page_parent' => array(
+		'desc' => 'current_page_parent: applied to the parent menu item of the currently queried object, if it is a page. Also applied to a static home page if one is used.'),
+	'current_page_ancestor' => array(
+		'desc' => 'current_page_ancestor: applied to ancestor menu items of the currently queried object, if it is a page.'),
+	'current-object-ancestor' => array(
+		'desc' => 'current-<code>object</code>-ancestor: applied to menu items for ancestors of the queried object, for heirarchical post types and taxonomies.',
+		'example' => '<li class="menu-item current-page-ancestor ...',
+		'regex' => '/^current-\w+-ancestor$/'),
+	'current-menu-ancestor' => array(
+		'desc' => 'current-menu-ancestor: applied to ancestors of the current menu item.'),
+	'current-menu-parent' => array(
+		'desc' => 'current-menu-parent: applied to the immediate parent of the current menu item.'),
+	'current-object-parent' => array(
+		'desc' => 'current-<code>object</code>-parent: applied to menu items for ancestors of the queried object, for heirarchical post types and taxonomies.',
+		'example' => '<li class="menu-item current-category-parent ...',
+		'regex' => '/^current-\w+-parent$/'),
+	'menu-item-id' => array(
+		'desc' => 'menu-item-<code>ID</code>: applied to menu items with the ID of the corresponding object appended.',
+		'example' => '<li class="menu-item current_page_item menu-item-1023 ...',
+		'regex' => '/^menu-item-\d+$/'),	
+);
+
 // start out with 3.0 settings and work backwards.
 global $wp_version;
 if( version_compare($wp_version, '3', '<' ) ) {
@@ -284,6 +328,9 @@ if( version_compare($wp_version, '3', '<' ) ) {
 	
 	// feed generator tags don't exist
 	unset( $feed['the_generator'] );
+	
+	// no menus
+	$menu_classes = array();
 }
 if( version_compare($wp_version, '3.1', '<' ) ) {
 	// new post classes
@@ -295,5 +342,5 @@ if( version_compare($wp_version, '3.1', '<' ) ) {
 		unset( $body_classes[$v] );
 }
 
-$this->option_groups = compact('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes');
+$this->option_groups = compact('wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'menu_classes');
 ?>

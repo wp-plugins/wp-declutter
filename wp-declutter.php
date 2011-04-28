@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Declutter Wordpress
+Plugin Name: Declutter WordPress
 Plugin URI: http://rayofsolaris.net/code/declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.4
+Version: 1.5
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 License: GPL2
@@ -12,7 +12,7 @@ License: GPL2
 if(!defined('ABSPATH')) exit;
 
 class WP_Declutter {
-	const db_version = 1;	// since 1.4
+	const db_version = 2;	// since 1.4
 	private $options, $option_groups;
 	
 	function __construct(){
@@ -26,7 +26,7 @@ class WP_Declutter {
 		// load options, upgrading if necessary
 		$options = get_option( 'wp_declutter_options', array() );
 		if( !isset( $options['options_version'] ) || $options['options_version'] < self::db_version ) {
-			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'special' );
+			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'menu_classes', 'special' );
 			foreach( $defaults as $d ) if( !isset( $options[$d] ) ) $options[$d] = array();	// empty array
 			$options['options_version'] = self::db_version;
 			update_option( 'wp_declutter_options' , $options );
@@ -58,10 +58,11 @@ class WP_Declutter {
 			foreach( array('rss2_head', 'commentsrss2_head', 'rss_head', 'rdf_header', 'atom_head', 'comments_atom_head', 'opml_head', 'app_head') as $hook ) remove_action($hook, 'the_generator');
 		}
 		
-		// body, post, comment classes
+		// body, post, comment, menu classes
 		add_filter('body_class', array(&$this, 'filter_body_classes'));
 		add_filter('post_class', array(&$this, 'filter_post_classes'));
 		add_filter('comment_class', array(&$this, 'filter_comment_classes'));
+		add_filter('nav_menu_css_class', array(&$this, 'filter_menu_classes'));
 	}
 	
 	function filter_body_classes($classes){
@@ -72,6 +73,9 @@ class WP_Declutter {
 	}
 	function filter_comment_classes($classes){
 		return $this->filter_classes($classes, 'comment_classes');
+	}
+	function filter_menu_classes($classes){
+		return $this->filter_classes($classes, 'menu_classes');
 	}
 	
 	private function remove_actions($hook, $group, $priorities = '') {
@@ -108,7 +112,7 @@ class WP_Declutter {
 	}
 	
 	function settings_menu() {
-		add_submenu_page('options-general.php', 'Declutter Wordpress', 'Declutter Wordpress', 'manage_options', 'wp_declutter_settings', array(&$this, 'settings_page') );
+		add_submenu_page('options-general.php', 'Declutter WordPress', 'Declutter WordPress', 'manage_options', 'wp_declutter_settings', array(&$this, 'settings_page') );
 	}
 	
 	function settings_page() {
@@ -123,28 +127,28 @@ class WP_Declutter {
 	.special_note {color: brown}
 	</style>
 	<div class="wrap">
-	<h2>Declutter Wordpress</h2>
-	<p>Wordpress comes with a bunch of default settings that insert various pieces of code into your site's pages. Some of these are optional (some might say unnecessary), and you can remove them if you wish.</p>
+	<h2>Declutter WordPress</h2>
+	<p>WordPress comes with a bunch of default settings that insert various pieces of code into your site's pages. Some of these are optional (some might say unnecessary), and you can remove them if they are not used by your WordPress theme.</p>
 	
 	<form action="" method="post" id="wp-declutter-settings">
-	<p id="declutter_select" style="display:none">Select a section to configure: <br />[<a id="show_wp_head" href="#">The HTML &lt;head&gt; section</a>] [<a id="show_feeds" href="#">Feeds</a>] [<a id="show_http" href="#">HTTP Headers</a>] [<a id="show_body" href="#">HTML &lt;body&gt;</a>] [<a id="show_posts" href="#">Posts</a>] [<a id="show_comments" href="#">Comments</a>] [<a id="show_all" href="#"><strong>Show All</strong></a>]</p>
+	<p id="declutter_select" style="display:none">Select a section to configure: <br />[<a id="show_wp_head" href="#">The HTML &lt;head&gt; section</a>] [<a id="show_feeds" href="#">Feeds</a>] [<a id="show_http" href="#">HTTP Headers</a>] [<a id="show_body" href="#">HTML &lt;body&gt;</a>] [<a id="show_posts" href="#">Posts</a>] [<a id="show_comments" href="#">Comments</a>] [<a id="show_menu" href="#">Menus</a>] [<a id="show_all" href="#"><strong>Show All</strong></a>]</p>
 	
 	<div class="declutter_group" id="s_wp_head">
-	<h3>The HTML &lt;head&gt; section</h3><p>Wordpress inserts the following optional tags into the head of your HTML pages. Most of this information is not visible to people visiting your site - it is intended for browsers and robots. Uncheck those items you wish to remove. Examples of each tag are provided below the descriptions.</p><ul><?php $this->list_items('wp_head'); ?></ul>
+	<h3>The HTML &lt;head&gt; section</h3><p>WordPress inserts the following optional tags into the head of your HTML pages. Most of this information is not visible to people visiting your site - it is intended for browsers and robots. Uncheck those items you wish to remove. Examples of each tag are provided below the descriptions.</p><ul><?php $this->list_items('wp_head'); ?></ul>
 	</div>
 	
 	<div class="declutter_group" id="s_feeds">
-	<h3>Feeds</h3><p>Wordpress inserts the following optional tags into feeds. Uncheck those items you wish to remove.</p>
+	<h3>Feeds</h3><p>WordPress inserts the following optional tags into feeds. Uncheck those items you wish to remove.</p>
 	<ul><?php $this->list_items('feed'); ?></ul>
 	</div>
 	
 	<div class="declutter_group" id="s_http">
-	<h3>HTTP Headers</h3><p>Wordpress sends some optional HTTP headers by default whenever a page is requested. Uncheck those you do not wish to be sent.</p>
+	<h3>HTTP Headers</h3><p>WordPress sends some optional HTTP headers by default whenever a page is requested. Uncheck those you do not wish to be sent.</p>
 	<ul><?php $this->list_items('wp_headers'); $this->list_items('template_redirect'); ?></ul>
 	</div>
 	
 	<div class="declutter_group" id="s_body">
-	<h3>HTML &lt;body&gt; </h3><p>Wordpress inserts a number of class names into the <code>&lt;body&gt;</code> tag.</p>
+	<h3>HTML &lt;body&gt; </h3><p>WordPress inserts a number of class names into the <code>&lt;body&gt;</code> tag.</p>
 	<p><strong></strong></p>
 	<p><input type="checkbox" name="special__body_classes" class="special_declutter_option" <?php if(isset($this->options['special']['body_classes'])) echo 'checked="checked"';?> /> Remove all classes from the <code>&lt;body&gt;</code> tag. <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
 	<p id="body_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in the <code>&lt;body&gt;</code> tag. Deselect the option above to filter classes individually.</p>
@@ -155,7 +159,7 @@ class WP_Declutter {
 	</div>
 	
 	<div class="declutter_group" id="s_posts">
-	<h3>Posts</h3><p>Wordpress inserts various class names into post <code>&lt;div&gt;</code> elements based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling.</p>
+	<h3>Posts</h3><p>WordPress inserts various class names into post <code>&lt;div&gt;</code> elements based on the properties of the post. This can sometimes lead to a long list of classes on each post, many of which may not be used for styling.</p>
 	<p><input type="checkbox" name="special__post_classes" class="special_declutter_option" <?php if(isset($this->options['special']['post_classes'])) echo 'checked="checked"';?> /> Remove all classes from post <code>&lt;div&gt;</code> elements. <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
 	<p id="post_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in post <code>&lt;div&gt;</code> elements. Deselect the option above to filter classes individually.</p>
 	<div id="post_classes">
@@ -165,15 +169,23 @@ class WP_Declutter {
 	</div>
 	
 	<div class="declutter_group" id="s_comments">
-	<h3>Comments</h3><p>Wordpress also inserts various class names into comments.</p>
+	<h3>Comments</h3><p>WordPress also inserts various class names into comments.</p>
 	<p><input type="checkbox" name="special__comment_classes" class="special_declutter_option" <?php if(isset($this->options['special']['comment_classes'])) echo 'checked="checked"';?> /> Remove all classes from comment elements (normally <code>&lt;li&gt;</code> elements, but it depends on your theme). <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
 	<p id="comment_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in comment elements. Deselect the option above to filter classes individually.</p>
 	<div id="comment_classes">
 		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
 		<ul><?php $this->list_items('comment_classes'); ?></ul>
 	</div>
+	</div>
 	
-	
+	<div class="declutter_group" id="s_menu">
+	<h3>Menus</h3><p>WordPress also inserts various class names into navigation menus.</p>
+	<p><input type="checkbox" name="special__menu_classes" class="special_declutter_option" <?php if(isset($this->options['special']['menu_classes'])) echo 'checked="checked"';?> /> Remove all classes from menu items. <strong>Selecting this option will remove *all* classes, including those that are added by other plugins.</strong></p>
+	<p id="menu_classes_special_note" class="special_note" style="display:none">You have chosen to disable all classes in menu. Deselect the option above to filter classes individually.</p>
+	<div id="menu_classes">
+		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
+		<ul><?php $this->list_items('menu_classes'); ?></ul>
+	</div>
 	</div>
 	
 	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
@@ -218,7 +230,7 @@ class WP_Declutter {
 	
 	private function list_items($group) {
 		if(empty($this->option_groups[$group])) 
-			echo '<li>Your version of Wordpress does not have any entries in this section.</li>';
+			echo '<li>Your version of WordPress does not have any entries in this section.</li>';
 		else {
 			ksort($this->option_groups[$group]);	// sort by key for more sensible viewing
 			foreach($this->option_groups[$group] as $key => $item) {
@@ -242,7 +254,7 @@ class WP_Declutter {
 		}
 		
 		// special options stored in $options['special'], checked means active
-		foreach( array('body_classes', 'post_classes', 'comment_classes') as $opt ){
+		foreach( array( 'body_classes', 'post_classes', 'comment_classes', 'menu_classes' ) as $opt ){
 			if( isset($_POST["special__$opt"]) ) $options['special'][$opt] = true;
 		}
 		

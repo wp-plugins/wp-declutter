@@ -1,15 +1,15 @@
-=== Declutter Wordpress ===
+=== Declutter WordPress ===
 Contributors: solarissmoke
 Tags: declutter, wp_head, generator, meta, shortlink, class, body
 Requires at least: 2.9
 Tested up to: 3.1
 Stable tag: trunk
 
-This plugin lets you remove some of the default headers, tags and classes that Wordpress inserts into your template by default.
+This plugin lets you remove some of the default headers, tags and classes that WordPress inserts into your template by default.
 
 == Description ==
 
-This plugin lets you remove some of the default headers, tags and classes that Wordpress inserts into your template by default. I personally find that some of them are unnecessary and just waste bandwidth.
+This plugin lets you remove some of the default headers, tags and classes that WordPress inserts into your template by default. I personally find that some of them are unnecessary and just waste bandwidth.
 
 The plugin currently lets you configure the following:
 
@@ -18,13 +18,13 @@ The plugin currently lets you configure the following:
 	* Extra feed links (category, tag, author, search feeds)
 	* Really Simple Discovery and Windows Live Manifest endpoint links (most people don't even know what these are, let alone use them)
 	* Links to the index page, the first post, previous/next posts, parent post
-	* Generator tag which reveals which version of Wordpress you are using
+	* Generator tag which reveals which version of WordPress you are using
 	* Shortlink tag
 * In HTTP response headers:
 	* Shortlink header
 	* Redundant Etag headers
 	* X-Pingback header
-* Remove HTML body classes that you do not need (there is a huge list of classes that Wordpress automatically inserts into the body tag)
+* Remove HTML body classes that you do not need (there is a huge list of classes that WordPress automatically inserts into the body tag)
 * Remove post classes that you do not need (e.g., `type-`, `category-`, `tag-`)
 * Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
 
@@ -34,17 +34,20 @@ If you come across any bugs or have suggestions, please contact me at [rayofsola
 
 == Changelog ==
 
+= 1.5 =
+* Added menu item class filtering
+
 = 1.4 =
-* Added version-specific filters for Wordpress 3.1
-* Modified upgrade routine to account for changes in upgrade procedure in Wordpress 3.1
+* Added version-specific filters for WordPress 3.1
+* Modified upgrade routine to account for changes in upgrade procedure in WordPress 3.1
 * Performance improvements for class filtering
 
 = 1.3 =
-* Added new class filters for classes introduced in Wordpress 3.1 beta/RC
+* Added new class filters for classes introduced in WordPress 3.1 beta/RC
 
 = 1.2 =
 * Added the option to completely disable body, post and comment classes.
-* Added new class filters for classes introduced in Wordpress 3.1 alpha
+* Added new class filters for classes introduced in WordPress 3.1 alpha
 
 = 1.1 =
 * Added filtering for classes in the <body> tag
@@ -52,6 +55,6 @@ If you come across any bugs or have suggestions, please contact me at [rayofsola
 
 == Installation ==
 
-1. Upload the wp-declutter folder to the `/wp-content/plugins/` directory (or use the Wordpress auto-install feature)
+1. Upload the wp-declutter folder to the `/wp-content/plugins/` directory (or use the WordPress auto-install feature)
 2. Activate the plugin through the 'Plugins' page in WordPress
-3. The settings for the plugin can be accessed from the Settings administration menu, under "Declutter Wordpress".
+3. The settings for the plugin can be accessed from the Settings administration menu, under "Declutter WordPress".
