@@ -213,7 +213,7 @@ class WP_Declutter {
 		jQuery(".special_declutter_option").change(function(){
 			var i = jQuery(this);
 			var refto = i.attr("name").replace("special__", "");
-			if( i.attr("checked") == true ){
+			if( i.is(":checked") ){
 				jQuery("#" + refto).hide();
 				jQuery("#" + refto + "_special_note").show();
 			}
@@ -268,4 +268,3 @@ class WP_Declutter {
 } // class
 
 new WP_Declutter();
-?>
