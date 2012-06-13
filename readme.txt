@@ -35,6 +35,9 @@ If you come across any bugs or have suggestions, please contact me at [rayofsola
 
 == Changelog ==
 
+= 1.6 =
+* Added the option to remove ID attributes from Menu items
+
 = 1.5 =
 * Added menu item class filtering
 

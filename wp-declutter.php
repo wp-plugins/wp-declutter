@@ -3,16 +3,17 @@
 Plugin Name: Declutter WordPress
 Plugin URI: http://rayofsolaris.net/code/declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.5
+Version: 1.6
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 License: GPL2
 */
 
-if(!defined('ABSPATH')) exit;
+if(!defined('ABSPATH')) 
+	exit;
 
 class WP_Declutter {
-	const db_version = 2;	// since 1.4
+	const db_version = 3;	// since 1.4
 	private $options, $option_groups;
 	
 	function __construct(){
@@ -26,7 +27,7 @@ class WP_Declutter {
 		// load options, upgrading if necessary
 		$options = get_option( 'wp_declutter_options', array() );
 		if( !isset( $options['options_version'] ) || $options['options_version'] < self::db_version ) {
-			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'menu_classes', 'special' );
+			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'menu_classes', 'special', 'other' );
 			foreach( $defaults as $d ) if( !isset( $options[$d] ) ) $options[$d] = array();	// empty array
 			$options['options_version'] = self::db_version;
 			update_option( 'wp_declutter_options' , $options );
@@ -63,6 +64,10 @@ class WP_Declutter {
 		add_filter('post_class', array(&$this, 'filter_post_classes'));
 		add_filter('comment_class', array(&$this, 'filter_comment_classes'));
 		add_filter('nav_menu_css_class', array(&$this, 'filter_menu_classes'));
+		
+		// other
+		if( isset( $this->options['other']['menu_ids'] ) )
+			add_filter( 'nav_menu_item_id', '__return_false' );
 	}
 	
 	function filter_body_classes($classes){
@@ -186,6 +191,8 @@ class WP_Declutter {
 		<p>Otherwise, <strong>deselect</strong> the individual items below that you do not want to appear.</p>
 		<ul><?php $this->list_items('menu_classes'); ?></ul>
 	</div>
+	<h4>Other menu tweaks</h4>
+	<p><input type="checkbox" name="other__menu_ids" <?php if(isset($this->options['other']['menu_ids'])) echo 'checked="checked"';?> /> Remove ID attributes from Menu items</p><p class="example"><code>&lt;li id="menu-item-1023" ...</code></p>
 	</div>
 	
 	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
@@ -193,36 +200,36 @@ class WP_Declutter {
 	</form>
 	</div>
 	<script>
-	jQuery(document).ready(function(){
-		jQuery('#declutter_select').show(); 
-		jQuery('#declutter_select > a').click(function(){
-			var aid = jQuery(this).attr('id');
-			jQuery('#declutter_current_view').val(aid);
-			if(aid == 'show_all') jQuery('.declutter_group').fadeIn('slow');
+	jQuery(document).ready(function($){
+		$('#declutter_select').show(); 
+		$('#declutter_select > a').click(function(){
+			var aid = $(this).attr('id');
+			$('#declutter_current_view').val(aid);
+			if(aid == 'show_all') $('.declutter_group').fadeIn('slow');
 			else {
-				jQuery('.declutter_group').hide(); 
-				jQuery('#' + aid.replace('show_','s_') ).fadeIn('slow');
+				$('.declutter_group').hide(); 
+				$('#' + aid.replace('show_','s_') ).fadeIn('slow');
 			}
 		});
 		<?php 
 			$current = isset($_POST['declutter_current_view']) ? $_POST['declutter_current_view'] : false;
-			if($current) echo "jQuery('#$current').click();";
-			else echo "jQuery('.declutter_group').hide();";
+			if($current) echo "$('#$current').click();";
+			else echo "$('.declutter_group').hide();";
 		?>
 		// Special option handling
-		jQuery(".special_declutter_option").change(function(){
-			var i = jQuery(this);
+		$(".special_declutter_option").change(function(){
+			var i = $(this);
 			var refto = i.attr("name").replace("special__", "");
 			if( i.is(":checked") ){
-				jQuery("#" + refto).hide();
-				jQuery("#" + refto + "_special_note").show();
+				$("#" + refto).hide();
+				$("#" + refto + "_special_note").show();
 			}
 			else {
-				jQuery("#" + refto).show();
-				jQuery("#" + refto + "_special_note").hide();
+				$("#" + refto).show();
+				$("#" + refto + "_special_note").hide();
 			}
 		});
-		jQuery(".special_declutter_option").change();	// trigger the function
+		$(".special_declutter_option").change();	// trigger the function
 	});
 	</script>
 <?php
@@ -250,18 +257,26 @@ class WP_Declutter {
 				// if no regex is supplied, leave the value empty, otherwise an array(key => regex)
 				$unchecked[$key] = isset($item['regex']) ? $item['regex'] : '';
 			}
-			$options[$group] = $unchecked;
+			$this->options[$group] = $unchecked;
 		}
 		
 		// special options stored in $options['special'], checked means active
 		foreach( array( 'body_classes', 'post_classes', 'comment_classes', 'menu_classes' ) as $opt ){
-			if( isset($_POST["special__$opt"]) ) $options['special'][$opt] = true;
+			if( isset($_POST["special__$opt"]) )
+				$this->options['special'][$opt] = true;
+			else
+				unset( $this->options['special'][$opt] );
 		}
 		
-		// refresh local option list
-		$this->options = $options;
+		// some other tweaks
+		foreach( array( 'menu_ids' ) as $opt ) {
+			if( isset($_POST["other__$opt"]) )
+				$this->options['other'][$opt] = true;
+			else
+				unset( $this->options['other'][$opt] );
+		}
 
-		update_option( 'wp_declutter_options', $options );
+		update_option( 'wp_declutter_options', $this->options );
 		echo '<div id="message" class="updated fade"><p>Options updated.</p></div>';
 	}
 
