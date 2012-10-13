@@ -2,7 +2,7 @@
 Contributors: solarissmoke
 Tags: declutter, wp_head, generator, meta, shortlink, class, body
 Requires at least: 2.9
-Tested up to: 3.4
+Tested up to: 3.5
 Stable tag: trunk
 
 This plugin lets you remove some of the default headers, tags and classes that WordPress inserts into your template by default.
