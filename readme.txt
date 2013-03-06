@@ -1,7 +1,7 @@
 === Declutter WordPress ===
 Contributors: solarissmoke
 Tags: declutter, wp_head, generator, meta, shortlink, class, body
-Requires at least: 2.9
+Requires at least: 3.3
 Tested up to: 3.5
 Stable tag: trunk
 
@@ -16,8 +16,8 @@ The plugin currently lets you configure the following:
 * In the head of HTML and XML documents
 	* Feed links (blog and comment feeds)
 	* Extra feed links (category, tag, author, search feeds)
-	* Really Simple Discovery and Windows Live Manifest endpoint links (most people don't even know what these are, let alone use them)
-	* Links to the index page, the first post, previous/next posts, parent post
+	* Really Simple Discovery and Windows Live Manifest endpoint links
+	* Links to previous/next posts
 	* Generator tag which reveals which version of WordPress you are using
 	* Shortlink tag
 * In HTTP response headers:
@@ -29,11 +29,13 @@ The plugin currently lets you configure the following:
 * Remove comment classes that you do not need (e.g., `odd`, `even`, `alt`, `byuser`, `bypostauthor`, `depth-N`)
 * Remove menu item classes that you do not need (e.g., `menu-item`, `current-menu-item`, `current_page_ancestor`)
 
-If you come across any bugs or have suggestions, please contact me at [rayofsolaris.net](http://rayofsolaris.net).
-
-**This plugin requires PHP version 5. Please do not try installing it in a PHP 4 environment.**
+If you come across any bugs or have suggestions, please [contact me](http://rayofsolaris.net) or use the support forums. I can't fix it if I don't know it's broken!
 
 == Changelog ==
+
+= 1.6.1 =
+* Remove options for start/parent/index rel links - these were dropped from WordPress.
+* Minor usability improvements.
 
 = 1.6 =
 * Added the option to remove ID attributes from Menu items

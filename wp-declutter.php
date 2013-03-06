@@ -3,7 +3,7 @@
 Plugin Name: Declutter WordPress
 Plugin URI: http://rayofsolaris.net/code/declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.6
+Version: 1.6.1
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 License: GPL2
@@ -29,6 +29,11 @@ class WP_Declutter {
 		if( !isset( $options['options_version'] ) || $options['options_version'] < self::db_version ) {
 			$defaults = array( 'wp_headers', 'wp_head', 'template_redirect', 'feed', 'body_classes', 'post_classes', 'comment_classes', 'menu_classes', 'special', 'other' );
 			foreach( $defaults as $d ) if( !isset( $options[$d] ) ) $options[$d] = array();	// empty array
+
+			// delete old wp_head options
+			foreach( array( 'index_rel_link', 'parent_post_rel_link', 'start_post_rel_link' ) as $old )
+				unset( $options['wp_head'][$old] );
+
 			$options['options_version'] = self::db_version;
 			update_option( 'wp_declutter_options' , $options );
 		}
@@ -132,6 +137,7 @@ class WP_Declutter {
 	.special_note {color: brown}
 	</style>
 	<div class="wrap">
+	<?php screen_icon('plugins');?>
 	<h2>Declutter WordPress</h2>
 	<p>WordPress comes with a bunch of default settings that insert various pieces of code into your site's pages. Some of these are optional (some might say unnecessary), and you can remove them if they are not used by your WordPress theme.</p>
 	
@@ -192,7 +198,7 @@ class WP_Declutter {
 		<ul><?php $this->list_items('menu_classes'); ?></ul>
 	</div>
 	<h4>Other menu tweaks</h4>
-	<p><input type="checkbox" name="other__menu_ids" <?php if(isset($this->options['other']['menu_ids'])) echo 'checked="checked"';?> /> Remove ID attributes from Menu items</p><p class="example"><code>&lt;li id="menu-item-1023" ...</code></p>
+	<p><label for="other__menu_ids"><input type="checkbox" id="other__menu_ids" name="other__menu_ids" <?php if(isset($this->options['other']['menu_ids'])) echo 'checked="checked"';?> /> Remove ID attributes from Menu items</label></p><p class="example"><code>&lt;li id="menu-item-1023" ...</code></p>
 	</div>
 	
 	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
@@ -244,7 +250,8 @@ class WP_Declutter {
 				$desc = $item['desc'];
 				$example = isset($item['example']) ? '<p class="example"><code>'.htmlspecialchars($item['example']).'</code></p>' : '';
 				$checked = isset($this->options[$group][$key]) ? '' : "checked='checked'";
-				echo "<li><input type='checkbox' name='{$group}__{$key}' $checked /> $desc $example</li>";
+				$id = $group . '__' . $key;
+				echo "<li><label for='$id'><input type='checkbox' id='$id' name='$id' $checked /> $desc</label> $example</li>";
 			}
 		}
 	}

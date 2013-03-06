@@ -34,15 +34,6 @@ $wp_head = array(
 	'wlwmanifest_link' => array(
 		'desc' => 'Link to the Windows Live Writer manifest file. If you have never heard of Windows Live Writer, you definitely don\'t need this.', 
 		'example' => '<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://example.com/wp-includes/wlwmanifest.xml" />'),
-	'index_rel_link' => array(
-		'desc' => 'Link to the front page of your site.', 
-		'example' => '<link rel="index" title="Blog" href="http://example.com" />'),
-	'parent_post_rel_link' => array(
-		'desc' => 'Link to the parent of the current page, if it exists.', 
-		'example' => '<link rel="up" title="Parent post title" href="http://example.com/parent-post/" />'),
-	'start_post_rel_link' => array(
-		'desc' => 'Link to the first post on your blog.', 
-		'example' => '<link rel="start" title="Hello world!" href="http://example.com/hello-world/" />'),
 	'adjacent_posts_rel_link_wp_head' => array(
 		'desc' => 'Links to next/previous posts.', 
 		'example' => '<link rel="prev" title="Hello world!" href="http://example.com/hello-world/" />'),
