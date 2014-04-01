@@ -3,7 +3,7 @@
 Plugin Name: Declutter WordPress
 Plugin URI: http://rayofsolaris.net/code/declutter-wordpress
 Description: A plugin to declutter wordpress of many of the default headers, tags and classes that it inserts into posts, pages and feeds.
-Version: 1.6.1
+Version: 1.6.2
 Author: Samir Shah
 Author URI: http://rayofsolaris.net/
 License: GPL2
@@ -127,8 +127,10 @@ class WP_Declutter {
 	
 	function settings_page() {
 		require(dirname(__FILE__).'/groups.php');
-		if(isset($_POST['submit'])) 
+		if(isset($_POST['submit'])) {
+			check_admin_referer( 'wp-declutter-admin' );
 			$this->update();
+		}
 	?>
 	<style>
 	#wp-declutter-settings ul, .indent {padding-left: 1.5em}
@@ -202,6 +204,7 @@ class WP_Declutter {
 	</div>
 	
 	<input type="hidden" name="declutter_current_view" id="declutter_current_view" value="" />
+	<?php wp_nonce_field( 'wp-declutter-admin' ); ?>
 	<p class="submit"><input class="button-primary" type="submit" name="submit" value="Update settings" /></p>
 	</form>
 	</div>

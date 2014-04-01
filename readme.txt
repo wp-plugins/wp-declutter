@@ -1,8 +1,8 @@
 === Declutter WordPress ===
 Contributors: solarissmoke
 Tags: declutter, wp_head, generator, meta, shortlink, class, body
-Requires at least: 3.3
-Tested up to: 3.5
+Requires at least: 3.5
+Tested up to: 3.9
 Stable tag: trunk
 
 This plugin lets you remove some of the default headers, tags and classes that WordPress inserts into your template by default.
@@ -32,6 +32,9 @@ The plugin currently lets you configure the following:
 If you come across any bugs or have suggestions, please [contact me](http://rayofsolaris.net) or use the support forums. I can't fix it if I don't know it's broken!
 
 == Changelog ==
+
+= 1.6.2 =
+* Add CSRF validation to settings page.
 
 = 1.6.1 =
 * Remove options for start/parent/index rel links - these were dropped from WordPress.
