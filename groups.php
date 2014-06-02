@@ -287,7 +287,7 @@ $menu_classes = array(
 	'current-object-ancestor' => array(
 		'desc' => 'current-<code>object</code>-ancestor: applied to menu items for ancestors of the queried object, for heirarchical post types and taxonomies.',
 		'example' => '<li class="menu-item current-page-ancestor ...',
-		'regex' => '/^current-\w+-ancestor$/'),
+		'regex' => '/^current-(?!menu)\w+-ancestor$/'),
 	'current-menu-ancestor' => array(
 		'desc' => 'current-menu-ancestor: applied to ancestors of the current menu item.'),
 	'current-menu-parent' => array(
@@ -295,7 +295,7 @@ $menu_classes = array(
 	'current-object-parent' => array(
 		'desc' => 'current-<code>object</code>-parent: applied to menu items for ancestors of the queried object, for heirarchical post types and taxonomies.',
 		'example' => '<li class="menu-item current-category-parent ...',
-		'regex' => '/^current-\w+-parent$/'),
+		'regex' => '/^current-(?!menu)\w+-parent$/'),
 	'menu-item-id' => array(
 		'desc' => 'menu-item-<code>ID</code>: applied to menu items with the ID of the corresponding object appended.',
 		'example' => '<li class="menu-item current_page_item menu-item-1023 ...',

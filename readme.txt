@@ -33,6 +33,9 @@ If you come across any bugs or have suggestions, please [contact me](http://rayo
 
 == Changelog ==
 
+= 1.6.3 =
+* Bugfix: current-menu-ancestor and current-menu-parent were being wrongly hidden by another filter.
+
 = 1.6.2 =
 * Add CSRF validation to settings page.
 
